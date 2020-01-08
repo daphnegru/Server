@@ -12,7 +12,7 @@ public class User {
     private String username;
     private String password;
     private boolean login;
-    private Map<String, ArrayList<Book>> genre;
+    private Map<String, ArrayList<book>> genre;
 
     public User(int uniqueId,String username,String password) {
         genre= new ConcurrentHashMap<>();
@@ -40,7 +40,7 @@ public class User {
         return login;
     }
 
-    public Map<String, ArrayList<Book>> getGenre() {
+    public Map<String, ArrayList<book>> getGenre() {
         return genre;
     }
 
@@ -60,5 +60,13 @@ public class User {
         genre.clear();
         login = false;
         uniqueId=-1;
+    }
+
+    public void addBook(String g, String book){
+        ArrayList<book> books = genre.get(g);
+        book toAdd = new book(book,g);
+        if (!books.contains(toAdd)){
+            books.add(toAdd);
+        }
     }
 }
