@@ -55,4 +55,10 @@ public class User {
     public void leaveGenre(String g){
         genre.remove(g);
     }
+
+    public void logOut(){
+        genre.clear();
+        login = false;
+        uniqueId=-1;
+    }
 }
