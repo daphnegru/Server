@@ -1,9 +1,13 @@
 package bgu.spl.net.srv;
 
+import bgu.spl.net.impl.User;
 import bgu.spl.net.impl.bookClub;
 
+import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConnectionsImpl<T> implements Connections<T> {
 
