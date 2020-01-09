@@ -11,7 +11,6 @@ public class bookClub {
     private Map<String, CopyOnWriteArrayList<Pair<User, Integer>>> genres;
     private static bookClub instance = new bookClub();
 
-
     public bookClub() {
         users = new ConcurrentHashMap<>();
         genres = new ConcurrentHashMap<>();
@@ -63,18 +62,26 @@ public class bookClub {
         return "Already in genre: " + genre;
     }
 
-    public void exitgenre(String genre, User u){
-        if(genres.containsKey(genre)){
-            CopyOnWriteArrayList<Pair<User,Integer>> list = genres.get(genre);
-            for (Pair<User,Integer> p: list){
-                if (p.first==u){
-                    list.remove(u);
+    public String exitgenre(int genre, User u){
+        String ans = "";
+        String g = "";
+        boolean found = false;
+        for (Map.Entry<String, CopyOnWriteArrayList<Pair<User, Integer>>> entry: genres.entrySet()){
+            for (Pair<User, Integer> p: entry.getValue()){
+                if (p.second==genre && p.first==u){
+                    genres.remove(p);
+                    found = true;
+                    g = entry.getKey();
                 }
             }
-            //to check if removes correctly
-//            genres.get(genre).remove(u);
-            u.leaveGenre(genre);
         }
+        if (found){
+            ans = g;
+        }
+        else {
+            ans = null;
+        }
+        return ans;
     }
 
     public void logout(User u){
@@ -88,28 +95,6 @@ public class bookClub {
         u.logOut();
     }
 
-    public void addBook(User u, String genre, String book){
-        if (genres.containsKey(genre)){
-            CopyOnWriteArrayList<Pair<User,Integer>> list = genres.get(genre);
-            for (Pair<User,Integer> p: list){
-                if (p.first==u){
-                    u.addBook(genre,book);
-                }
-            }
-        }
-    }
-
-    public void borrowBook(User u, String genre, String book){
-
-    }
-
-    public void returnBook(User u, String genre, String book){
-
-    }
-
-    public void status(User u, String genre){
-
-    }
 
     public User getUser(int id){
         User u = null;
