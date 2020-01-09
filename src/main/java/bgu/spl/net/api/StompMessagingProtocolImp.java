@@ -79,6 +79,7 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
                 case "DISCONNECT":
                     String disReceipt = firstrow[1].substring(':' + 1);
                     int rec = Integer.parseInt(disReceipt);
+                    bookclub.logout(user);
                     connections.send(connectionId, new disconnectFrame(rec).toString());
                     terminate = true;
                     connections.disconnect(connectionId);
