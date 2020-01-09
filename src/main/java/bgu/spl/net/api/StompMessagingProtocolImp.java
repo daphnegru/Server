@@ -67,8 +67,9 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
 
                     }
                 case "UNSUBSCRIBE":
-                    String unsubline = firstrow[1];
-                    int k = Integer.parseInt(unsubline);
+                    String[] unsubline = firstrow[1].split("\n", 2);
+                    String unsub = unsubline[0].substring(unsubline[0].indexOf(':')+1);
+                    int k = Integer.parseInt(unsub);
                     String s = bookclub.exitgenre(k,user);
                     if (s != null) {
                         connections.send(connectionId, new unsubscribeFrame(s).toString());
@@ -77,8 +78,9 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
 
 
                 case "DISCONNECT":
-                    String disReceipt = firstrow[1].substring(':' + 1);
-                    int rec = Integer.parseInt(disReceipt);
+                    String[] disReceipt = firstrow[1].split("\n", 2);
+                    String disRec = disReceipt[0].substring(disReceipt[0].indexOf(':')+1);
+                    int rec = Integer.parseInt(disRec);
                     bookclub.logout(user);
                     connections.send(connectionId, new disconnectFrame(rec).toString());
                     terminate = true;
