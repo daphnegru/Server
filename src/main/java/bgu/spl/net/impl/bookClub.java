@@ -2,6 +2,7 @@ package bgu.spl.net.impl;
 
 import jdk.internal.net.http.common.Pair;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -103,6 +104,15 @@ public class bookClub {
                 u= users.get(i);
         }
         return u;
+    }
+
+    public int subscription(User u,String genre){
+        List<Pair<User, Integer>> l= genres.get(genre);
+        for(int i=0;i<l.size();i++){
+            if(l.get(i).first==u)
+                return l.get(i).second;
+        }
+        return -1;
     }
 
 

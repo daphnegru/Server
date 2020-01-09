@@ -11,6 +11,7 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
     private boolean terminate;
     private bookClub bookclub;
     private User user;
+    private int msgid;
 
     @Override
     public void start(int connectionId, Connections connections) {
@@ -19,6 +20,7 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
         this.terminate=false;
         bookclub=bookClub.getInstance();
         this.user=null;
+        msgid=0;
     }
 
     @Override
@@ -32,6 +34,7 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
             String password=splitline[3].substring(splitline[3].indexOf(':')+1);
             int answer= bookclub.login(connectionId,user,password);
             sendConnect(answer,version);
+            msgid++;
 
         }
         if(user!=null) {
@@ -44,31 +47,42 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
                     String subReceipt = subline[2].substring(subline[2].indexOf(':') + 1);
                     bookclub.joingenre(dest, connectionId, user);
                     subscribeFrame n = new subscribeFrame(subReceipt);
-                    connections.send(connectionId, n);
+                    connections.send(connectionId, n.toString());
+                    msgid++;
 
                 case "SEND":
                     String[] sendline = firstrow[1].split("\n", 3);
                     String destSend = sendline[0].substring(sendline[0].indexOf(':') + 1);
                     String msg = sendline[1];
-                    //sendFrame n= new sendFrame(subReceipt);
-                    //connections.send(connectionId,n);
+                    int sub=bookclub.subscription(user,destSend);
+                    msgid++;
+                    if(sub!=-1) {
+                        sendFrame b = new sendFrame(destSend, msg, sub, msgid);
+                        connections.send(connectionId, b.toString());
+                    }
 
+                    else {
+                        String s= "the subscription is not found";
+                        connections.send(connectionId, new notconnectedFrame("s"));
 
+                    }
                 case "UNSUBSCRIBE":
                     String unsubline = firstrow[1];
                     int k = Integer.parseInt(unsubline);
                     String s = bookclub.exitgenre(k,user);
                     if (s != null) {
-                        connections.send(connectionId, new unsubscribeFrame(s));
+                        connections.send(connectionId, new unsubscribeFrame(s).toString());
+                        msgid++;
                     }
+
 
                 case "DISCONNECT":
                     String disReceipt = firstrow[1].substring(':' + 1);
                     int rec = Integer.parseInt(disReceipt);
-                    connections.send(connectionId, new disconnectFrame(rec));
+                    connections.send(connectionId, new disconnectFrame(rec).toString());
                     terminate = true;
                     connections.disconnect(connectionId);
-
+                    msgid++;
             }
         }
         else {
@@ -88,18 +102,18 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
             //succeded
             user = bookclub.getUser(connectionId);
             connectframe n= new connectframe(version);
-            connections.send(connectionId,n);
-
+            connections.send(connectionId,n.toString());
+            user=bookclub.getUser(connectionId);
         }
         if (ans == 1){
             errorFrame n= new errorFrame("Wrong password",version);
-            connections.send(connectionId,n);
+            connections.send(connectionId,n.toString());
             terminate=true;
             connections.disconnect(connectionId);
         }
         if (ans == 2){
             errorFrame n= new errorFrame("User already logged in",version);
-            connections.send(connectionId,n);
+            connections.send(connectionId,n.toString());
             terminate=true;
             connections.disconnect(connectionId);
         }
