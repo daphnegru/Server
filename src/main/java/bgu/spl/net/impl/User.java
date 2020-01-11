@@ -49,12 +49,10 @@ public class User {
     }
 
     public void addGenre(String g){
-        genre.put(g,null);
+        ArrayList<book> list = new ArrayList<>();
+        genre.put(g,list);
     }
 
-    public void leaveGenre(String g){
-        genre.remove(g);
-    }
 
     public void logOut(){
         genre.clear();
@@ -62,11 +60,39 @@ public class User {
         uniqueId=-1;
     }
 
-    public void addBook(String g, String book){
-        ArrayList<book> books = genre.get(g);
-        book toAdd = new book(book,g);
-        if (!books.contains(toAdd)){
-            books.add(toAdd);
+    public void addBook(String g, String book) {
+        if (genre.get(g) != null) {
+            book toAdd = new book(book, g);
+            if (!genre.get(g).contains(toAdd)) {
+                genre.get(g).add(toAdd);
+            }
         }
+        else {
+            ArrayList<book> genreToAdd = new ArrayList<>();
+            book toAdd = new book(book, g);
+            genreToAdd.add(toAdd);
+            genre.putIfAbsent(g, genreToAdd);
+        }
+    }
+
+    public void removeBook(String g, String book){
+        if (genre.get(g)!=null){
+            for (book b: genre.get(g)){
+                if (b.getName()==book){
+                    genre.get(g).remove(b);
+                }
+            }
+        }
+    }
+
+    public boolean hasBook(String g, String book){
+        if (genre.get(g)!=null){
+            for (book b: genre.get(g)){
+                if (b.getName().equals(book)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

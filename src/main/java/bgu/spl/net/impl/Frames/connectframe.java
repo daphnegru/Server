@@ -8,7 +8,7 @@ public class connectframe implements frame {
     }
 
     public String toString(){
-        String s="CONNECTED"+"\n"+version+"\u0000";
+        String s="CONNECTED"+'\n'+ "version:"+version+'\u0000';
         return s;
     }
 }

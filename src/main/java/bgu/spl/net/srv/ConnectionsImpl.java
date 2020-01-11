@@ -2,6 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.impl.User;
 import bgu.spl.net.impl.bookClub;
+import javafx.util.Pair;
 
 import java.sql.Connection;
 import java.util.List;
@@ -32,9 +33,9 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void send(String channel, T msg) {
-        for(int i=0;i<bookclub.getUsers().size();i++){
-            if (bookclub.getUsers().get(i).getGenre().containsKey(channel)){
-                connections.get(bookclub.getUsers().get(i).getUniqueId()).send(msg);
+        if (bookclub.getGenreUsers(channel)!=null){
+            for (Pair<User,Integer> p: bookclub.getGenreUsers(channel)){
+                connections.get(p.getKey().getUniqueId()).send(msg);
             }
         }
     }

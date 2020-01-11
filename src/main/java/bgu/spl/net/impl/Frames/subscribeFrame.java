@@ -8,7 +8,8 @@ public class subscribeFrame implements frame {
         this.receipt=receipt;
     }
     public String toString(){
-        String s= "RECEIPT"+"\n"+receipt+"\u0000";
+        int i = Integer.parseInt(receipt);
+        String s= "RECEIPT"+'\n'+ "receipt-id:" +  i +'\u0000';
         return s;
     }
 

@@ -8,7 +8,7 @@ public class disconnectFrame {
         this.receipt=receipt;
     }
     public String toString(){
-        String s= "RECEIPT"+"\n"+receipt+"\u0000";
+        String s = "RECEIPT"+'\n'+"receipt-id:"+receipt+'\u0000';
         return s;
     }
 }

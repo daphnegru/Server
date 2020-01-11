@@ -1,11 +1,12 @@
 package bgu.spl.net.impl;
 
-import jdk.internal.net.http.common.Pair;
+//import jdk.internal.net.http.common.Pair;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javafx.util.Pair;
 
 public class bookClub {
     private Map<String, User> users;
@@ -41,7 +42,9 @@ public class bookClub {
         else{
             User newuser= new User(cId,username,password);
             //check
-            String id = ((Integer)cId).toString();
+            Integer i = (Integer)cId;
+            String id = i.toString();
+//            String id = (i.toString();
             users.put(id,newuser);
             return 0;
         }
@@ -69,7 +72,7 @@ public class bookClub {
         boolean found = false;
         for (Map.Entry<String, CopyOnWriteArrayList<Pair<User, Integer>>> entry: genres.entrySet()){
             for (Pair<User, Integer> p: entry.getValue()){
-                if (p.second==genre && p.first==u){
+                if (p.getValue()==genre && p.getKey()==u){
                     genres.remove(p);
                     found = true;
                     g = entry.getKey();
@@ -88,7 +91,7 @@ public class bookClub {
     public void logout(User u){
         for (CopyOnWriteArrayList<Pair<User,Integer>> list: genres.values()){
             for (Pair <User,Integer> p: list){
-                if (p.first==u){
+                if (p.getKey()==u){
                     list.remove(p);
                 }
             }
@@ -99,9 +102,10 @@ public class bookClub {
 
     public User getUser(int id){
         User u = null;
-        for(int i=0;i<users.size();i++){
-            if(users.get(i).getUniqueId()==id)
-                u= users.get(i);
+        for (Map.Entry<String,User> user: users.entrySet()){
+            if (user.getValue().getUniqueId()==id){
+                u=user.getValue();
+            }
         }
         return u;
     }
@@ -109,8 +113,30 @@ public class bookClub {
     public int subscription(User u,String genre){
         List<Pair<User, Integer>> l= genres.get(genre);
         for(int i=0;i<l.size();i++){
-            if(l.get(i).first==u)
-                return l.get(i).second;
+            if(l.get(i).getKey()==u)
+                return l.get(i).getValue();
+        }
+        return -1;
+    }
+
+    public CopyOnWriteArrayList<Pair<User, Integer>> getGenreUsers(String genre){
+        for (Map.Entry<String, CopyOnWriteArrayList<Pair<User, Integer>>> entry: genres.entrySet()){
+            if (entry.getKey().equals(genre)){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public int getGenreId(String genre, User u){
+        for (Map.Entry<String, CopyOnWriteArrayList<Pair<User, Integer>>> entry: genres.entrySet()){
+            if (entry.getKey().equals(genre)){
+                for (Pair<User,Integer>p:entry.getValue()){
+                    if (p.getKey()==u){
+                        return p.getValue();
+                    }
+                }
+            }
         }
         return -1;
     }
