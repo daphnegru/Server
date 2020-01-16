@@ -8,13 +8,12 @@ public class MessageEncoderDecoderImp<T> implements MessageEncoderDecoder<T> {
     private int len = 0;
 
     @Override
-    public T decodeNextByte(byte nextByte) {
+    public String decodeNextByte(byte nextByte) {
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
         if (nextByte == '\u0000') {
-            return (T)popString();
+            return popString();
         }
-
         pushByte(nextByte);
         return null; //not a line yet
     }

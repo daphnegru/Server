@@ -10,7 +10,7 @@ public class errorFrame implements frame {
     }
 
     public String toString(){
-        String s= msg+"\n"+version+"\u0000";
+        String s="ERROR"+'\n'+ msg +"\n"+version+'\n';
         return s;
     }
 }

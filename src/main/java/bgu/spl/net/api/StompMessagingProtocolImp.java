@@ -6,8 +6,6 @@ import bgu.spl.net.impl.User;
 import bgu.spl.net.impl.bookClub;
 import bgu.spl.net.srv.Connections;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class StompMessagingProtocolImp implements StompMessagingProtocol {
     private int connectionId;
@@ -43,8 +41,8 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
             int answer= bookclub.login(connectionId,user,password);
             sendConnect(answer,version);
             msgid++;
-
         }
+
         if(user!=null) {
             switch (firstrow[0]) {
                 case "SUBSCRIBE":
@@ -53,62 +51,93 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
                     String id = subline[1].substring(subline[1].indexOf(':') + 1);
                     int i = Integer.parseInt(id);
                     String subReceipt = subline[2].substring(subline[2].indexOf(':') + 1);
-                    bookclub.joingenre(dest, connectionId, user);
+                    bookclub.joingenre(dest, i, user);
                     subscribeFrame n = new subscribeFrame(subReceipt);
                     connections.send(connectionId, n.toString());
-
                     msgid++;
                     break;
 
                 case "SEND":
-                    String[] sendline = firstrow[1].split("\n", 3);
+                    String[] sendline = firstrow[1].split("\n", 4);
                     String destSend = sendline[0].substring(sendline[0].indexOf(':') + 1);
-                    String msg = sendline[1];
-                    boolean has = false;
-                    User toBorrow;
+                    String msg = sendline[2];
                     if (msg.contains("has added")){
-                        int last = msg.lastIndexOf(' ') + 1;
-                        String bookName = msg.substring(last);
+                        String[] toAdd = msg.split(" ", 6);
+                        String bookName = toAdd[5];
+                        msg = user.getUsername() + " has added the book " + bookName;
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
                         user.addBook(destSend,bookName);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
                     if (msg.contains("wish")){
-                        int last = msg.lastIndexOf(' ') + 1;
-                        String bookName = msg.substring(last);
-                        has = user.hasBook(destSend,bookName);
+                        String[] toAdd = msg.split(" ", 5);
+                        String bookName = toAdd[4];
+                        msg = user.getUsername() + " wish to borrow " +bookName;
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
-                    if (has){
-                        toBorrow = user;
+                    if (msg.contains("has") && !msg.contains("added")){
+                        String[] toAdd = msg.split(" ", 3);
+                        String bookName = toAdd[2];
+                        msg = user.getUsername() + " has " +bookName;
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
-                    if (msg.contains("taking")){
-                        int first = msg.indexOf(' ') +1;
-                        String bookName = msg.substring(first);
-                        first = bookName.indexOf(' ');
-                        bookName = bookName.substring(0,first);
+                    if (msg.contains("Taking")){
+                        String[] toAdd = msg.split(" ");
+                        String bookName="";
+                        for (int j = 1;j<toAdd.length-2;j++){
+                            bookName=bookName+toAdd[j]+" ";
+                        }
+                        bookName=bookName.substring(0,bookName.lastIndexOf(' '));
+                        int last = msg.lastIndexOf(' ');
+                        String userName = msg.substring(last + 1);
                         user.removeBook(destSend,bookName);
+                        msg = "Taking " + bookName + " from " + userName;
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
                     if (msg.contains("Returning")){
-                        int first = msg.indexOf(' ') +1;
-                        String bookName = msg.substring(first);
-                        first = bookName.indexOf(' ');
-                        bookName = bookName.substring(0,first);
+                        String[] toAdd = msg.split(" ");
+                        String bookName="";
+                        for (int j = 1;j<toAdd.length-2;j++){
+                            bookName=bookName+toAdd[j]+" ";
+                        }
+                        bookName=bookName.substring(0,bookName.lastIndexOf(' '));
+                        int last = msg.lastIndexOf(' ');
+                        String userName = msg.substring(last+1);
+                        msg = "Returning " + bookName + " to " + userName;
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
                         user.addBook(destSend,bookName);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
                     if (msg.contains("status")){
-
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
                     }
-                    int subid = bookClub.getInstance().getGenreId(destSend,user);
-                    sendFrame send = new sendFrame(destSend,msg,subid,msgid);
-                    connections.send(destSend,send.toString());
+                    if (msg.contains(":")) {
+                        int subid = bookClub.getInstance().getGenreId(destSend,user);
+                        sendFrame send = new sendFrame(destSend,msg,subid,msgid);
+                        connections.send(destSend,send.toString());
+                    }
                     msgid++;
                     break;
 
                 case "UNSUBSCRIBE":
                     String[] unsubline = firstrow[1].split("\n", 3);
-                    String unsub = unsubline[1];
+                    String unsub = unsubline[0];
+                    String reci=unsubline[1];
                     unsub = unsub.substring(unsub.indexOf(':')+1);
-//                    String unsub = unsubline[1].substring(unsubline[0].indexOf(':'+1));
-                    int k = Integer.parseInt(unsub);
-                    String s = bookclub.exitgenre(k,user);
+                    reci=reci.substring(reci.indexOf(":")+1);
+                    int m= Integer.parseInt(unsub);
+                    int k = Integer.parseInt(reci);
+                    String s = bookclub.exitgenre(m,user);
                     if (s != null) {
                         connections.send(connectionId, new unsubscribeFrame(k).toString());
                         msgid++;
@@ -122,7 +151,6 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
                     bookclub.logout(user);
                     disconnectFrame disconnectFrame = new disconnectFrame(rec);
                     connections.send(connectionId, disconnectFrame.toString());
-//                    terminate = true;
                     connections.disconnect(connectionId);
                     terminate=true;
                     msgid++;
@@ -150,17 +178,16 @@ public class StompMessagingProtocolImp implements StompMessagingProtocol {
             user=bookclub.getUser(connectionId);
         }
         if (ans == 1){
-            errorFrame n= new errorFrame("Wrong password",version);
+            errorFrame n= new errorFrame(version,"Wrong password");
             connections.send(connectionId,n.toString());
             terminate=true;
             connections.disconnect(connectionId);
         }
         if (ans == 2){
-            errorFrame n= new errorFrame("User already logged in",version);
+            errorFrame n= new errorFrame(version,"User already logged in");
             connections.send(connectionId,n.toString());
             terminate=true;
             connections.disconnect(connectionId);
         }
     }
-
 }

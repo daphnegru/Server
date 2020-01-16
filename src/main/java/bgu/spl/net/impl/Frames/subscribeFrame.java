@@ -9,7 +9,7 @@ public class subscribeFrame implements frame {
     }
     public String toString(){
         int i = Integer.parseInt(receipt);
-        String s= "RECEIPT"+'\n'+ "receipt-id:" +  i +'\u0000';
+        String s= "RECEIPT"+'\n'+ "receipt-id:" + i + '\n';
         return s;
     }
 

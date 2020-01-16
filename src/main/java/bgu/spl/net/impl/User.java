@@ -13,6 +13,7 @@ public class User {
     private String password;
     private boolean login;
     private Map<String, ArrayList<book>> genre;
+    private Map<String,Integer> ids;
 
     public User(int uniqueId,String username,String password) {
         genre= new ConcurrentHashMap<>();
@@ -20,6 +21,7 @@ public class User {
         this.username=username;
         this.password=password;
         login=true;
+        ids = new ConcurrentHashMap<>();
 
     }
 
@@ -44,13 +46,27 @@ public class User {
         return genre;
     }
 
+
     public void setLogin(boolean login) {
         this.login = login;
     }
 
-    public void addGenre(String g){
-        ArrayList<book> list = new ArrayList<>();
-        genre.put(g,list);
+    public void addGenre(String g, int id) {
+        if (!genre.containsKey(g)) {
+            ArrayList<book> list = new ArrayList<>();
+            genre.put(g, list);
+            ids.putIfAbsent(g, (Integer) id);
+        }
+        else {
+            ArrayList<book> list = genre.get(g);
+            genre.remove(g);
+            genre.put(g,list);
+            ids.putIfAbsent(g, (Integer) id);
+        }
+    }
+
+    public Map<String,Integer> getIds(){
+        return ids;
     }
 
 
@@ -94,5 +110,9 @@ public class User {
             }
         }
         return false;
+    }
+
+    public void setUniqueId(int id){
+        this.uniqueId=id;
     }
 }

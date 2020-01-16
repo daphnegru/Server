@@ -8,21 +8,23 @@ import bgu.spl.net.srv.Server;
 public class StompServer {
 
     public static void main(String[] args) {
-        Server.threadPerClient(
-                7777,
-                ()-> new StompMessagingProtocolImp(),
-                ()-> new MessageEncoderDecoderImp<String>() {
-                }
-        ).serve();
+        if (args[1].equals("tpc")){
+            Server.threadPerClient(
+                    1234,
+                    ()-> new StompMessagingProtocolImp(),
+                    ()-> new MessageEncoderDecoderImp<String>() {
+                    }
+            ).serve();
+        }
 
-//        Server.reactor(
-//                Runtime.getRuntime().availableProcessors(),
-//                7777,
-//                ()->new StompMessagingProtocolImp(),
-//                ()-> new MessageEncoderDecoderImp<>()
-//        ).serve();
+        if (args[1].equals("reactor")) {
 
+            Server.reactor(
+                    Runtime.getRuntime().availableProcessors(),
+                    1234,
+                    () -> new StompMessagingProtocolImp(),
+                    () -> new MessageEncoderDecoderImp<>()
+            ).serve();
+        }
     }
-
-
 }

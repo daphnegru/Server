@@ -16,19 +16,18 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
     private AtomicInteger connectionId;
-    private Connections connections;
+    private Connections<String> connections;
 
     public BaseServer(
             int port,
             Supplier<StompMessagingProtocol> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> encdecFactory) {
-
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
         this.sock = null;
         connectionId = new AtomicInteger(0);
-        connections = new ConnectionsImpl();
+        connections = new ConnectionsImpl<>();
     }
 
     @Override
@@ -47,9 +46,7 @@ public abstract class BaseServer<T> implements Server<T> {
                         clientSock,
                         encdecFactory.get(),
                         protocol);
-
-
-                ((ConnectionsImpl)connections).connect(connectionId.incrementAndGet(),handler);
+                ((ConnectionsImpl<T>)connections).connect(connectionId.incrementAndGet(),handler);
                 protocol.start(connectionId.get(),connections);
 
                 execute(handler);

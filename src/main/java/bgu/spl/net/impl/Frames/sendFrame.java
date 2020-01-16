@@ -12,7 +12,7 @@ public class sendFrame {
         this.subscription=subscription;
     }
     public String toString(){
-        String s="MESSAGE"+"\n"+"subscription:"+subscription+"\n"+"Message-id:"+msgId+"\n"+"destination:"+dest+"\n"+msg+"\u0000";
+        String s="MESSAGE"+"\n"+"subscription:"+subscription+"\n"+"Message-id:"+msgId+"\n"+"destination:"+dest+ "\n" + '\n' +msg;
         return s;
     }
 }

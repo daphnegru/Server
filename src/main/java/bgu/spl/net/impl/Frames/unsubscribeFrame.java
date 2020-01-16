@@ -7,7 +7,7 @@ public class unsubscribeFrame {
         this.genre=genre;
     }
     public String toString(){
-        String s= "RECEIPT"+'\n'+ "receipt-id:" +genre+'\u0000';
+        String s= "RECEIPT"+'\n'+ "receipt-id:" +genre;
         return s;
     }
 
