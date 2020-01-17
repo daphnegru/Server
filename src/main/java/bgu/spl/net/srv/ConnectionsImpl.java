@@ -31,13 +31,13 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void send(String channel, T msg) {
-//        synchronized (channel) {
+        synchronized (channel) {
             if (bookclub.getGenreUsers(channel) != null) {
                 for (Pair<User, Integer> p : bookclub.getGenreUsers(channel)) {
                     connections.get(p.getKey().getUniqueId()).send(msg);
                 }
             }
-//        }
+        }
     }
 
     @Override
